@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sujets & Planning — Équipe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#F4F5F7; --surface:#FFFFFF; --border:#E1E4E9; --ink:#1B2430; --ink-soft:#5B6577;
+    --accent:#2A4D69; --accent-soft:#E7EEF3;
+    --red:#C0392B; --red-soft:#FBEAE8;
+    --orange:#B9700A; --orange-soft:#FBF0DD;
+    --yellow:#9A7B08; --yellow-soft:#FBF6DA;
+    --green:#2E7D5B; --green-soft:#E7F3ED;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  header{margin-bottom:20px;}
+  .eyebrow{font-size:13px;color:var(--ink-soft);margin-bottom:4px;}
+  h1{font-size:26px;font-weight:700;margin:0;}
+  .note{background:var(--orange-soft);color:var(--orange);padding:10px 12px;border-radius:6px;font-size:13px;margin-bottom:16px;line-height:1.5;}
+  .note code{background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;}
+  .sync-status{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;margin-bottom:16px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+  .dot.off{background:var(--red);}
+
+  .spaces{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+  .space-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+    font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
+  .space-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .space-add{padding:7px 12px;border-radius:999px;border:1px dashed var(--border);background:transparent;
+    font-size:13px;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
+
+  .tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);}
+  .tab-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;background:transparent;border:none;
+    border-bottom:2px solid transparent;color:var(--ink-soft);font-weight:600;font-size:14px;cursor:pointer;margin-bottom:-1px;font-family:inherit;}
+  .tab-btn.active{border-bottom-color:var(--accent);color:var(--accent);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+  .btn-primary{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;
+    border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .list{display:flex;flex-direction:column;gap:8px;}
+  .row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:10px 12px;}
+  .row-bar{width:4px;align-self:stretch;border-radius:2px;}
+  .row-main{flex:1;min-width:0;}
+  .row-title-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .row-title{font-weight:600;font-size:15px;}
+  .row-prio{font-size:11px;font-weight:600;}
+  .row-notes{font-size:13px;color:var(--ink-soft);margin-top:2px;}
+  .badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;white-space:nowrap;}
+  .icon-btn{background:transparent;border:none;color:var(--ink-soft);cursor:pointer;padding:4px;display:flex;}
+  .empty{border:1px dashed var(--border);border-radius:8px;padding:28px 16px;text-align:center;color:var(--ink-soft);font-size:14px;}
+  .date-col{width:64px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+    color:var(--ink-soft);border-right:1px solid var(--border);padding-right:12px;}
+  .date-col small{display:block;font-size:11px;margin-top:2px;}
+  .today-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:5px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,24,30,0.4);display:none;align-items:center;
+    justify-content:center;padding:16px;z-index:50;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:10px;padding:20px;width:100%;max-width:420px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .modal-head span{font-weight:700;font-size:16px;}
+  label{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;display:block;}
+  input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+    font-size:14px;font-family:inherit;margin-bottom:12px;}
+  textarea{min-height:60px;resize:vertical;}
+  .full-btn{width:100%;justify-content:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Coordination — suivi partagé</div>
+    <h1>Sujets &amp; planning</h1>
+  </header>
+
+  <div class="note" id="setupNote" style="display:none;">
+    Firebase n'est pas encore configuré : remplis l'objet <code>firebaseConfig</code> en haut du fichier
+    (voir les instructions fournies) pour activer le partage en temps réel entre postes.
+    En attendant, l'app fonctionne en local sur ce navigateur uniquement.
+  </div>
+
+  <div class="sync-status" id="syncStatus"><span class="dot off" id="syncDot"></span><span id="syncLabel">Non connecté</span></div>
+
+  <div class="spaces" id="spacesBar"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="sujets" onclick="switchTab('sujets')">Sujets (<span id="countSubjects">0</span>)</button>
+    <button class="tab-btn" data-tab="planning" onclick="switchTab('planning')">Planning (<span id="countMeetings">0</span>)</button>
+  </div>
+
+  <div class="panel active" id="panel-sujets">
+    <div class="toolbar"><button class="btn-primary" onclick="openModal('subjectModal')">+ Nouveau sujet</button></div>
+    <div class="list" id="subjectsList"></div>
+  </div>
+
+  <div class="panel" id="panel-planning">
+    <div class="toolbar"><button class="btn-primary" onclick="openModal('meetingModal')">+ Nouvelle conf</button></div>
+    <div class="list" id="meetingsList"></div>
+  </div>
+</div>
+
+<!-- Modal Sujet -->
+<div class="modal-overlay" id="subjectModal" onclick="closeModalOnOverlay(event,'subjectModal')">
+  <div class="modal">
+    <div class="modal-head"><span>Nouveau sujet</span><button class="icon-btn" onclick="closeModal('subjectModal')">✕</button></div>
+    <label>Titre</label>
+    <input id="subjTitle" placeholder="Ex : Backlog SUD-EST" />
+    <label>Priorité</label>
+    <select id="subjPriority">
+      <option value="Haute">Haute</option>
+      <option value="Moyenne" selected>Moyenne</option>
+      <option value="Basse">Basse</option>
+    </select>
+    <label>Deadline (optionnel)</label>
+    <input type="date" id="subjDeadline" />
+    <label>Notes</label>
+    <textarea id="subjNotes"></textarea>
+    <button class="btn-primary full-btn" onclick="submitSubject()">Ajouter</button>
+  </div>
+</div>
+
+<!-- Modal Conf -->
+<div class="modal-overlay" id="meetingModal" onclick="closeModalOnOverlay(event,'meetingModal')">
+  <div class="modal">
+    <div class="modal-head"><span>Nouvelle conf</span><button class="icon-btn" onclick="closeModal('meetingModal')">✕</button></div>
+    <label>Sujet</label>
+    <input id="meetTitle" placeholder="Ex : Point régional IDF" />
+    <label>Date</label>
+    <input type="date" id="meetDate" />
+    <label>Heure (optionnel)</label>
+    <input type="time" id="meetTime" />
+    <label>Notes</label>
+    <textarea id="meetNotes"></textarea>
+    <button class="btn-primary full-btn" onclick="submitMeeting()">Ajouter</button>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- CONFIGURATION FIREBASE — remplis ces valeurs (voir guide)  -->
+<!-- ========================================================= -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyATrtBg9eZRQljUkMZ_xEPe0Q3KNrTLwVw",
+    authDomain: "suivi-hl.firebaseapp.com",
+    projectId: "suivi-hl",
+    storageBucket: "suivi-hl.firebasestorage.app",
+    messagingSenderId: "461086667717",
+    appId: "1:461086667717:web:9f08c35a49aed0403251ac"
+  };
+</script>
+<!-- ========================================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const PRIO_COLOR = { Haute: 'var(--red)', Moyenne: 'var(--orange)', Basse: 'var(--ink-soft)' };
+
+let db = null;
+let firebaseReady = false;
+let spaces = {};           // { spaceId: { name, subjects:[], meetings:[] } }
+let currentSpaceId = null;
+let unsubscribeSpaces = null;
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function slugify(str){
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || uid();
+}
+
+// ---------- Firebase init ----------
+function initFirebase(){
+  if(firebaseConfig.apiKey === "REMPLACE_MOI"){
+    document.getElementById('setupNote').style.display = 'block';
+    initLocalFallback();
+    return;
+  }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    document.getElementById('syncDot').classList.remove('off');
+    document.getElementById('syncLabel').textContent = 'Synchronisé en temps réel';
+    listenToSpaces();
+  }catch(e){
+    document.getElementById('setupNote').style.display = 'block';
+    document.getElementById('setupNote').textContent = "Erreur de connexion Firebase : " + e.message + " — bascule en mode local.";
+    initLocalFallback();
+  }
+}
+
+// ---------- Mode local (fallback si Firebase non configuré) ----------
+function initLocalFallback(){
+  const saved = localStorage.getItem('suivi_spaces_local');
+  spaces = saved ? JSON.parse(saved) : {
+    'moi': { name: 'Moi', subjects: [
+      { id: uid(), title: 'Contrôle qualité CRI / photos', priority: 'Haute', deadline: '', notes: '' },
+    ], meetings: [] }
+  };
+  currentSpaceId = Object.keys(spaces)[0];
+  renderSpacesBar();
+  renderAll();
+}
+function saveLocal(){
+  localStorage.setItem('suivi_spaces_local', JSON.stringify(spaces));
+}
+
+// ---------- Firestore : écoute temps réel de toutes les personnes ----------
+function listenToSpaces(){
+  unsubscribeSpaces = db.collection('spaces').onSnapshot((snap) => {
+    const next = {};
+    snap.forEach(doc => { next[doc.id] = doc.data(); });
+    if(Object.keys(next).length === 0){
+      // Première utilisation : crée un espace par défaut
+      const id = 'moi';
+      db.collection('spaces').doc(id).set({ name: 'Moi', subjects: [], meetings: [] });
+      return;
+    }
+    spaces = next;
+    if(!currentSpaceId || !spaces[currentSpaceId]) currentSpaceId = Object.keys(spaces)[0];
+    renderSpacesBar();
+    renderAll();
+  }, (err) => {
+    document.getElementById('syncLabel').textContent = 'Erreur de synchro : ' + err.message;
+    document.getElementById('syncDot').classList.add('off');
+  });
+}
+
+function saveSpace(spaceId){
+  if(firebaseReady){
+    db.collection('spaces').doc(spaceId).set(spaces[spaceId]);
+  }else{
+    saveLocal();
+  }
+}
+
+function addSpace(){
+  const name = prompt('Nom de la personne :');
+  if(!name || !name.trim()) return;
+  const id = slugify(name.trim());
+  spaces[id] = { name: name.trim(), subjects: [], meetings: [] };
+  currentSpaceId = id;
+  saveSpace(id);
+  renderSpacesBar();
+  renderAll();
+}
+
+function switchSpace(id){
+  currentSpaceId = id;
+  renderSpacesBar();
+  renderAll();
+}
+
+function renderSpacesBar(){
+  const bar = document.getElementById('spacesBar');
+  const ids = Object.keys(spaces);
+  bar.innerHTML = ids.map(id => `
+    <button class="space-btn ${id === currentSpaceId ? 'active' : ''}" onclick="switchSpace('${id}')">
+      ${escapeHtml(spaces[id].name)}
+    </button>
+  `).join('') + `<button class="space-add" onclick="addSpace()">+ Personne</button>`;
+}
+
+// ---------- Utilitaires dates ----------
+function daysUntil(dateStr){
+  if(!dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr + 'T00:00:00');
+  return Math.round((target - today) / 86400000);
+}
+function statusFor(dateStr){
+  const d = daysUntil(dateStr);
+  if(d === null) return { label:'Sans échéance', color:'var(--ink-soft)', bg:'#EEF0F3', order:4 };
+  if(d < 0) return { label:`En retard (${Math.abs(d)}j)`, color:'var(--red)', bg:'var(--red-soft)', order:0 };
+  if(d <= 3) return { label: d===0 ? "Aujourd'hui" : `Urgent (${d}j)`, color:'var(--orange)', bg:'var(--orange-soft)', order:1 };
+  if(d <= 7) return { label:`Bientôt (${d}j)`, color:'var(--yellow)', bg:'var(--yellow-soft)', order:2 };
+  return { label:`OK (${d}j)`, color:'var(--green)', bg:'var(--green-soft)', order:3 };
+}
+function formatDateFR(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { weekday:'short', day:'2-digit', month:'short' });
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+// ---------- Rendu ----------
+function currentSpace(){ return spaces[currentSpaceId] || { name:'', subjects:[], meetings:[] }; }
+
+function renderAll(){ renderSubjects(); renderMeetings(); }
+
+function renderSubjects(){
+  const sp = currentSpace();
+  const subjects = sp.subjects || [];
+  const prioRank = { Haute:0, Moyenne:1, Basse:2 };
+  const sorted = [...subjects].sort((a,b) => {
+    const sa = statusFor(a.deadline).order, sb = statusFor(b.deadline).order;
+    if(sa !== sb) return sa - sb;
+    return prioRank[a.priority] - prioRank[b.priority];
+  });
+  document.getElementById('countSubjects').textContent = subjects.length;
+  const list = document.getElementById('subjectsList');
+  if(sorted.length === 0){
+    list.innerHTML = '<div class="empty">Aucun sujet. Ajoute le premier.</div>';
+    return;
+  }
+  list.innerHTML = sorted.map(s => {
+    const st = statusFor(s.deadline);
+    const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
+    return `<div class="row">
+      <div class="row-bar" style="background:${prioColor}"></div>
+      <div class="row-main">
+        <div class="row-title-line">
+          <span class="row-title">${escapeHtml(s.title)}</span>
+          <span class="row-prio" style="color:${prioColor}">${s.priority}</span>
+        </div>
+        ${s.notes ? `<div class="row-notes">${escapeHtml(s.notes)}</div>` : ''}
+      </div>
+      <div class="badge" style="color:${st.color};background:${st.bg}">
+        ${s.deadline ? `${formatDateFR(s.deadline)} · ${st.label}` : st.label}
+      </div>
+      <button class="icon-btn" onclick="removeSubject('${s.id}')" aria-label="Supprimer">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function renderMeetings(){
+  const sp = currentSpace();
+  const meetings = sp.meetings || [];
+  const sorted = [...meetings]
+    .filter(m => { const d = daysUntil(m.date); return d === null || d >= 0; })
+    .sort((a,b) => (a.date + (a.time||'')).localeCompare(b.date + (b.time||'')));
+  document.getElementById('countMeetings').textContent = sorted.length;
+  const list = document.getElementById('meetingsList');
+  if(sorted.length === 0){
+    list.innerHTML = '<div class="empty">Aucune conf enregistrée.</div>';
+    return;
+  }
+  list.innerHTML = sorted.map(m => {
+    const isToday = daysUntil(m.date) === 0;
+    return `<div class="row">
+      <div class="date-col">${formatDateFR(m.date)}${m.time ? `<small>${escapeHtml(m.time)}</small>` : ''}</div>
+      <div class="row-main">
+        <div class="row-title">${escapeHtml(m.title)}</div>
+        ${m.notes ? `<div class="row-notes">${escapeHtml(m.notes)}</div>` : ''}
+      </div>
+      ${isToday ? `<span class="today-badge">Aujourd'hui</span>` : ''}
+      <button class="icon-btn" onclick="removeMeeting('${m.id}')" aria-label="Supprimer">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.getElementById('panel-sujets').classList.toggle('active', name === 'sujets');
+  document.getElementById('panel-planning').classList.toggle('active', name === 'planning');
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModalOnOverlay(evt, id){ if(evt.target.id === id) closeModal(id); }
+
+function submitSubject(){
+  const title = document.getElementById('subjTitle').value.trim();
+  if(!title) return;
+  const sp = currentSpace();
+  sp.subjects = sp.subjects || [];
+  sp.subjects.push({
+    id: uid(),
+    title,
+    priority: document.getElementById('subjPriority').value,
+    deadline: document.getElementById('subjDeadline').value,
+    notes: document.getElementById('subjNotes').value.trim(),
+  });
+  spaces[currentSpaceId] = sp;
+  document.getElementById('subjTitle').value = '';
+  document.getElementById('subjDeadline').value = '';
+  document.getElementById('subjNotes').value = '';
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  closeModal('subjectModal');
+}
+
+function submitMeeting(){
+  const title = document.getElementById('meetTitle').value.trim();
+  const date = document.getElementById('meetDate').value;
+  if(!title || !date) return;
+  const sp = currentSpace();
+  sp.meetings = sp.meetings || [];
+  sp.meetings.push({
+    id: uid(),
+    title,
+    date,
+    time: document.getElementById('meetTime').value,
+    notes: document.getElementById('meetNotes').value.trim(),
+  });
+  spaces[currentSpaceId] = sp;
+  document.getElementById('meetTitle').value = '';
+  document.getElementById('meetDate').value = '';
+  document.getElementById('meetTime').value = '';
+  document.getElementById('meetNotes').value = '';
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  closeModal('meetingModal');
+}
+
+function removeSubject(id){
+  const sp = currentSpace();
+  sp.subjects = (sp.subjects || []).filter(s => s.id !== id);
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+}
+function removeMeeting(id){
+  const sp = currentSpace();
+  sp.meetings = (sp.meetings || []).filter(m => m.id !== id);
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+}
+
+initFirebase();
+</script>
+</body>
+</html>
