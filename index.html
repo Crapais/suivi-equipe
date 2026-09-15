@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
 <title>Sujets & Planning — Équipe</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
@@ -26,6 +27,16 @@
   .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
   .dot.off{background:var(--red);}
 
+  .usage-badge{position:fixed;top:12px;right:12px;background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);
+    box-shadow:0 1px 4px rgba(0,0,0,0.06);z-index:10;line-height:1.5;min-width:120px;}
+  .usage-badge b{color:var(--ink);}
+  .usage-bar{width:100%;height:4px;background:#EEF0F3;border-radius:2px;margin-top:4px;overflow:hidden;}
+  .usage-bar-fill{height:100%;background:var(--accent);}
+  @media (max-width:700px){
+    .usage-badge{position:static;margin:0 0 16px;width:fit-content;}
+  }
+
   .spaces{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
   .space-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
     font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
@@ -39,13 +50,17 @@
   .tab-btn.active{border-bottom-color:var(--accent);color:var(--accent);}
   .panel{display:none;}
   .panel.active{display:block;}
-  .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
   .btn-primary{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;
     border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
   .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-secondary{background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);border-radius:6px;
+    padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
   .list{display:flex;flex-direction:column;gap:8px;}
   .row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
     border-radius:8px;padding:10px 12px;}
+  .row.done{opacity:0.65;}
+  .row.done .row-title{text-decoration:line-through;text-decoration-color:var(--ink-soft);}
   .row-bar{width:4px;align-self:stretch;border-radius:2px;}
   .row-main{flex:1;min-width:0;}
   .row-title-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -55,9 +70,6 @@
   .badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;white-space:nowrap;}
   .icon-btn{background:transparent;border:none;color:var(--ink-soft);cursor:pointer;padding:4px;display:flex;}
   .empty{border:1px dashed var(--border);border-radius:8px;padding:28px 16px;text-align:center;color:var(--ink-soft);font-size:14px;}
-  .date-col{width:64px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
-    color:var(--ink-soft);border-right:1px solid var(--border);padding-right:12px;}
-  .date-col small{display:block;font-size:11px;margin-top:2px;}
   .today-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:5px;}
   .modal-overlay{position:fixed;inset:0;background:rgba(20,24,30,0.4);display:none;align-items:center;
     justify-content:center;padding:16px;z-index:50;}
@@ -70,9 +82,60 @@
     font-size:14px;font-family:inherit;margin-bottom:12px;}
   textarea{min-height:60px;resize:vertical;}
   .full-btn{width:100%;justify-content:center;}
+
+  /* ---------- Filtre priorité ---------- */
+  .prio-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .chip{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+    font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink-soft);opacity:0.55;}
+  .chip.on{opacity:1;}
+  .chip.chip-haute.on{border-color:var(--red);color:var(--red);background:var(--red-soft);}
+  .chip.chip-moyenne.on{border-color:var(--orange);color:var(--orange);background:var(--orange-soft);}
+  .chip.chip-basse.on{border-color:var(--ink-soft);color:var(--ink-soft);background:#EEF0F3;}
+
+  .urgency-group{margin-bottom:18px;}
+  .urgency-group-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+    color:var(--ink-soft);margin-bottom:8px;}
+  .urgency-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .urgency-count{font-weight:400;color:var(--ink-soft);}
+
+  .section-title{font-size:13px;font-weight:700;color:var(--ink-soft);margin:22px 0 10px;
+    display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+  .section-title .chev{transition:transform 0.15s;}
+  .section-title.collapsed .chev{transform:rotate(-90deg);}
+  .done-section{display:flex;flex-direction:column;gap:8px;}
+  .done-section.collapsed{display:none;}
+
+  /* ---------- Calendrier hebdo (style Outlook) ---------- */
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+  .cal-nav-buttons{display:flex;gap:6px;}
+  .cal-week-label{font-weight:600;font-size:14px;}
+  .cal-grid-wrap{border:1px solid var(--border);border-radius:8px;overflow-x:auto;background:var(--surface);}
+  .cal-grid{display:grid;grid-template-columns:52px repeat(5,minmax(90px,1fr));
+    grid-template-rows:36px repeat(20,26px);min-width:560px;position:relative;}
+  .cal-head{background:var(--accent-soft);padding:6px 4px;text-align:center;border-left:1px solid var(--border);}
+  .cal-head-time{background:var(--surface);border-left:none;}
+  .cal-head-today{background:#DCE9F2;}
+  .cal-head-day{font-size:12px;font-weight:600;color:var(--accent);}
+  .cal-head-date{font-size:11px;color:var(--ink-soft);}
+  .cal-time-label{font-size:10px;color:var(--ink-soft);text-align:right;padding-right:6px;
+    font-family:'IBM Plex Mono',monospace;border-top:1px solid var(--border);}
+  .cal-slot{border-top:1px solid var(--border);border-left:1px solid var(--border);cursor:pointer;}
+  .cal-slot:hover{background:var(--accent-soft);}
+  .cal-event{background:var(--accent);color:#fff;border-radius:4px;padding:3px 6px;font-size:11px;
+    overflow:hidden;cursor:pointer;line-height:1.3;z-index:2;margin:1px 2px;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+  .cal-event.cal-event-past{opacity:0.5;}
+  .cal-event b{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-event-time{font-size:10px;opacity:0.85;}
+  .cal-out{margin-top:16px;}
+  .cal-out-title{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
 </style>
 </head>
 <body>
+<div class="usage-badge" id="usageBadge" style="display:none;" title="Volume estimé des données stockées, par rapport au quota gratuit Firestore (1 Go)">
+  <div>Stockage : <b id="usageVolume">—</b></div>
+  <div id="usagePercent">—</div>
+  <div class="usage-bar"><div class="usage-bar-fill" id="usageBarFill" style="width:0%"></div></div>
+</div>
 <div class="wrap">
   <header>
     <div class="eyebrow">Coordination — suivi partagé</div>
@@ -91,24 +154,55 @@
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="sujets" onclick="switchTab('sujets')">Sujets (<span id="countSubjects">0</span>)</button>
-    <button class="tab-btn" data-tab="planning" onclick="switchTab('planning')">Planning (<span id="countMeetings">0</span>)</button>
+    <button class="tab-btn" data-tab="planning" onclick="switchTab('planning')">Planning (<span id="countMeetingsToday">0</span> aujourd'hui)</button>
   </div>
 
   <div class="panel active" id="panel-sujets">
-    <div class="toolbar"><button class="btn-primary" onclick="openModal('subjectModal')">+ Nouveau sujet</button></div>
+    <div class="toolbar">
+      <div class="prio-filter" id="prioFilter"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="seedExampleSubjects()">+ Exemples</button>
+        <button class="btn-primary" onclick="openNewSubjectModal()">+ Nouveau sujet</button>
+      </div>
+    </div>
     <div class="list" id="subjectsList"></div>
+
+    <div class="section-title" id="doneSectionTitle" onclick="toggleDoneSection()">
+      <span class="chev">▾</span>
+      <span id="doneSectionLabel">Sujets terminés (0)</span>
+    </div>
+    <div class="done-section" id="doneSection"></div>
   </div>
 
   <div class="panel" id="panel-planning">
-    <div class="toolbar"><button class="btn-primary" onclick="openModal('meetingModal')">+ Nouvelle conf</button></div>
-    <div class="list" id="meetingsList"></div>
+    <div class="cal-nav">
+      <div class="cal-nav-buttons">
+        <button class="btn-secondary" onclick="prevWeek()">◀</button>
+        <button class="btn-secondary" onclick="thisWeek()">Aujourd'hui</button>
+        <button class="btn-secondary" onclick="nextWeek()">▶</button>
+      </div>
+      <div class="cal-week-label" id="calWeekLabel"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="openImportModal()">Import rapide</button>
+        <button class="btn-primary" onclick="openNewMeetingModal()">+ Nouvelle conf</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--ink-soft);align-items:center;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#C0392B;display:inline-block;"></span>Haute</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#B9700A;display:inline-block;"></span>Moyenne</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#2A4D69;display:inline-block;"></span>Basse</span>
+    </div>
+    <div class="cal-grid-wrap">
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="cal-out list" id="calOutList" style="display:none;"></div>
   </div>
 </div>
 
 <!-- Modal Sujet -->
 <div class="modal-overlay" id="subjectModal" onclick="closeModalOnOverlay(event,'subjectModal')">
   <div class="modal">
-    <div class="modal-head"><span>Nouveau sujet</span><button class="icon-btn" onclick="closeModal('subjectModal')">✕</button></div>
+    <div class="modal-head"><span id="subjectModalTitle">Nouveau sujet</span><button class="icon-btn" onclick="closeModal('subjectModal')">✕</button></div>
     <label>Titre</label>
     <input id="subjTitle" placeholder="Ex : Backlog SUD-EST" />
     <label>Priorité</label>
@@ -121,23 +215,54 @@
     <input type="date" id="subjDeadline" />
     <label>Notes</label>
     <textarea id="subjNotes"></textarea>
-    <button class="btn-primary full-btn" onclick="submitSubject()">Ajouter</button>
+    <button class="btn-primary full-btn" id="subjectModalSubmitBtn" onclick="submitSubject()">Ajouter</button>
   </div>
 </div>
 
-<!-- Modal Conf -->
+<!-- Modal Conf (ajout et modification) -->
 <div class="modal-overlay" id="meetingModal" onclick="closeModalOnOverlay(event,'meetingModal')">
   <div class="modal">
-    <div class="modal-head"><span>Nouvelle conf</span><button class="icon-btn" onclick="closeModal('meetingModal')">✕</button></div>
+    <div class="modal-head"><span id="meetingModalTitle">Nouvelle conf</span><button class="icon-btn" onclick="closeModal('meetingModal')">✕</button></div>
     <label>Sujet</label>
     <input id="meetTitle" placeholder="Ex : Point régional IDF" />
+    <label>Priorité</label>
+    <select id="meetPriority">
+      <option value="Haute">Haute</option>
+      <option value="Moyenne" selected>Moyenne</option>
+      <option value="Basse">Basse</option>
+    </select>
     <label>Date</label>
     <input type="date" id="meetDate" />
-    <label>Heure (optionnel)</label>
-    <input type="time" id="meetTime" />
+    <label>Heure</label>
+    <input type="time" id="meetTime" min="08:00" max="18:00" />
+    <label>Durée</label>
+    <select id="meetDuration">
+      <option value="30">30 min</option>
+      <option value="60" selected>1h</option>
+      <option value="90">1h30</option>
+      <option value="120">2h</option>
+      <option value="180">3h</option>
+    </select>
     <label>Notes</label>
     <textarea id="meetNotes"></textarea>
-    <button class="btn-primary full-btn" onclick="submitMeeting()">Ajouter</button>
+    <button class="btn-primary full-btn" id="meetingModalSubmitBtn" onclick="submitMeeting()">Ajouter</button>
+    <button class="btn-secondary full-btn" id="meetingModalDeleteBtn" style="display:none;margin-top:8px;color:var(--red);border-color:var(--red-soft);"
+      onclick="requestDelete('meeting', editingMeetingId); closeModal('meetingModal');">🗑 Supprimer (clé requise)</button>
+  </div>
+</div>
+
+<!-- Modal Import rapide -->
+<div class="modal-overlay" id="importModal" onclick="closeModalOnOverlay(event,'importModal')">
+  <div class="modal">
+    <div class="modal-head"><span>Import rapide</span><button class="icon-btn" onclick="closeModal('importModal')">✕</button></div>
+    <label>Date (s'applique à toutes les lignes)</label>
+    <input type="date" id="importDate" />
+    <label>Confs (une par ligne — ex : <code>09:00 Point régional IDF</code> ou <code>09:00-10:30 Point régional IDF</code>)</label>
+    <textarea id="importText" style="min-height:140px;" placeholder="09:00 Point régional IDF
+10:30-11:30 Backlog SUD-OUEST
+14:00 Reporting Aurélien" oninput="previewImport()"></textarea>
+    <div id="importPreview" style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;"></div>
+    <button class="btn-primary full-btn" onclick="submitImport()">Importer tout</button>
   </div>
 </div>
 
@@ -161,12 +286,23 @@
 
 <script>
 const PRIO_COLOR = { Haute: 'var(--red)', Moyenne: 'var(--orange)', Basse: 'var(--ink-soft)' };
+const MEETING_PRIO_BG = { Haute: '#C0392B', Moyenne: '#B9700A', Basse: '#2A4D69' };
+const PRIO_LIST = ['Haute','Moyenne','Basse'];
+const CAL_START_HOUR = 8, CAL_END_HOUR = 18, CAL_SLOT_MIN = 30;
+const CAL_SLOTS = (CAL_END_HOUR - CAL_START_HOUR) * 60 / CAL_SLOT_MIN;
+const CAL_DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+
+// Clé demandée pour confirmer une suppression — modifie-la si tu veux la changer.
+const DELETE_KEY = "06122024";
 
 let db = null;
 let firebaseReady = false;
 let spaces = {};           // { spaceId: { name, subjects:[], meetings:[] } }
 let currentSpaceId = null;
 let unsubscribeSpaces = null;
+let weekStart = mondayOf(new Date());
+let selectedPriorities = new Set(PRIO_LIST);
+let doneSectionOpen = false;
 
 function uid(){ return Math.random().toString(36).slice(2,10); }
 function slugify(str){
@@ -200,7 +336,7 @@ function initLocalFallback(){
   const saved = localStorage.getItem('suivi_spaces_local');
   spaces = saved ? JSON.parse(saved) : {
     'moi': { name: 'Moi', subjects: [
-      { id: uid(), title: 'Contrôle qualité CRI / photos', priority: 'Haute', deadline: '', notes: '' },
+      { id: uid(), title: 'Contrôle qualité CRI / photos', priority: 'Haute', deadline: '', notes: '', done: false },
     ], meetings: [] }
   };
   currentSpaceId = Object.keys(spaces)[0];
@@ -217,7 +353,6 @@ function listenToSpaces(){
     const next = {};
     snap.forEach(doc => { next[doc.id] = doc.data(); });
     if(Object.keys(next).length === 0){
-      // Première utilisation : crée un espace par défaut
       const id = 'moi';
       db.collection('spaces').doc(id).set({ name: 'Moi', subjects: [], meetings: [] });
       return;
@@ -277,9 +412,9 @@ function daysUntil(dateStr){
 function statusFor(dateStr){
   const d = daysUntil(dateStr);
   if(d === null) return { label:'Sans échéance', color:'var(--ink-soft)', bg:'#EEF0F3', order:4 };
-  if(d < 0) return { label:`En retard (${Math.abs(d)}j)`, color:'var(--red)', bg:'var(--red-soft)', order:0 };
-  if(d <= 3) return { label: d===0 ? "Aujourd'hui" : `Urgent (${d}j)`, color:'var(--orange)', bg:'var(--orange-soft)', order:1 };
-  if(d <= 7) return { label:`Bientôt (${d}j)`, color:'var(--yellow)', bg:'var(--yellow-soft)', order:2 };
+  if(d < 0) return { label:`En retard (${Math.abs(d)}j)`, color:'#000000', bg:'#E3E3E3', order:0 };
+  if(d <= 2) return { label: d===0 ? "Aujourd'hui" : `${d}j restant${d>1?'s':''}`, color:'var(--red)', bg:'var(--red-soft)', order:1 };
+  if(d <= 5) return { label:`Bientôt (${d}j)`, color:'var(--yellow)', bg:'var(--yellow-soft)', order:2 };
   return { label:`OK (${d}j)`, color:'var(--green)', bg:'var(--green-soft)', order:3 };
 }
 function formatDateFR(dateStr){
@@ -293,70 +428,342 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+// ---------- Utilitaires calendrier ----------
+function mondayOf(d){
+  const nd = new Date(d); nd.setHours(0,0,0,0);
+  const day = (nd.getDay() + 6) % 7; // Lundi = 0 ... Dimanche = 6
+  nd.setDate(nd.getDate() - day);
+  return nd;
+}
+function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd; }
+function isoDate(d){
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function weekDates(){ return [0,1,2,3,4].map(i => addDays(weekStart, i)); }
+function prevWeek(){ weekStart = addDays(weekStart, -7); renderCalendar(); }
+function nextWeek(){ weekStart = addDays(weekStart, 7); renderCalendar(); }
+function thisWeek(){ weekStart = mondayOf(new Date()); renderCalendar(); }
+function timeToSlot(timeStr){
+  const parts = timeStr.split(':').map(Number);
+  const idx = Math.round(((parts[0]*60 + parts[1]) - CAL_START_HOUR*60) / CAL_SLOT_MIN);
+  return idx;
+}
+function slotToTime(idx){
+  const totalMin = CAL_START_HOUR*60 + idx*CAL_SLOT_MIN;
+  const hh = String(Math.floor(totalMin/60)).padStart(2,'0');
+  const mm = String(totalMin%60).padStart(2,'0');
+  return `${hh}:${mm}`;
+}
+
 // ---------- Rendu ----------
 function currentSpace(){ return spaces[currentSpaceId] || { name:'', subjects:[], meetings:[] }; }
 
-function renderAll(){ renderSubjects(); renderMeetings(); }
+function renderAll(){ renderSubjects(); renderCalendar(); updateUsageBadge(); }
+
+// ---------- Estimation du volume Firestore (quota gratuit) ----------
+const FIRESTORE_FREE_LIMIT_BYTES = 1024 * 1024 * 1024; // 1 Go (plan Spark gratuit)
+
+function updateUsageBadge(){
+  const badge = document.getElementById('usageBadge');
+  if(!firebaseReady){ badge.style.display = 'none'; return; }
+  badge.style.display = 'block';
+  const raw = JSON.stringify(spaces);
+  const bytes = new Blob([raw]).size;
+  const pct = (bytes / FIRESTORE_FREE_LIMIT_BYTES) * 100;
+  document.getElementById('usageVolume').textContent = formatBytes(bytes);
+  document.getElementById('usagePercent').textContent =
+    (pct < 0.01 ? '< 0.01' : pct.toFixed(2)) + '% du quota gratuit (1 Go)';
+  document.getElementById('usageBarFill').style.width = Math.min(100, Math.max(pct, 0.3)) + '%';
+}
+
+function formatBytes(bytes){
+  if(bytes < 1024) return bytes + ' o';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' Ko';
+  return (bytes/(1024*1024)).toFixed(2) + ' Mo';
+}
+
+// ---------- Filtre priorité ----------
+function renderPrioFilter(){
+  const el = document.getElementById('prioFilter');
+  const classes = { Haute:'chip-haute', Moyenne:'chip-moyenne', Basse:'chip-basse' };
+  el.innerHTML = PRIO_LIST.map(p => `
+    <button class="chip ${classes[p]} ${selectedPriorities.has(p) ? 'on' : ''}" onclick="togglePriority('${p}')">${p}</button>
+  `).join('');
+}
+function togglePriority(p){
+  if(selectedPriorities.has(p)) selectedPriorities.delete(p); else selectedPriorities.add(p);
+  if(selectedPriorities.size === 0) selectedPriorities = new Set(PRIO_LIST); // jamais un filtre vide
+  renderPrioFilter();
+  renderSubjects();
+}
+function toggleDoneSection(){
+  doneSectionOpen = !doneSectionOpen;
+  renderSubjects();
+}
 
 function renderSubjects(){
+  renderPrioFilter();
   const sp = currentSpace();
-  const subjects = sp.subjects || [];
+  const all = sp.subjects || [];
+  const active = all.filter(s => !s.done && selectedPriorities.has(s.priority));
+  const done = all.filter(s => s.done && selectedPriorities.has(s.priority));
   const prioRank = { Haute:0, Moyenne:1, Basse:2 };
-  const sorted = [...subjects].sort((a,b) => {
+
+  const sortedActive = [...active].sort((a,b) => {
     const sa = statusFor(a.deadline).order, sb = statusFor(b.deadline).order;
     if(sa !== sb) return sa - sb;
     return prioRank[a.priority] - prioRank[b.priority];
   });
-  document.getElementById('countSubjects').textContent = subjects.length;
+
+  document.getElementById('countSubjects').textContent = all.filter(s => !s.done).length;
+
   const list = document.getElementById('subjectsList');
-  if(sorted.length === 0){
-    list.innerHTML = '<div class="empty">Aucun sujet. Ajoute le premier.</div>';
-    return;
-  }
-  list.innerHTML = sorted.map(s => {
-    const st = statusFor(s.deadline);
-    const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
-    return `<div class="row">
-      <div class="row-bar" style="background:${prioColor}"></div>
-      <div class="row-main">
-        <div class="row-title-line">
-          <span class="row-title">${escapeHtml(s.title)}</span>
-          <span class="row-prio" style="color:${prioColor}">${s.priority}</span>
+  if(sortedActive.length === 0){
+    list.innerHTML = '<div class="empty">Aucun sujet (avec ce filtre). Ajoute-en un ou change le filtre.</div>';
+  }else{
+    const GROUP_LABELS = ['En retard', '2 jours ou moins', '3 à 5 jours', 'Au-delà de 5 jours', 'Sans échéance'];
+    const groups = [[], [], [], [], []];
+    sortedActive.forEach(s => groups[statusFor(s.deadline).order].push(s));
+
+    list.innerHTML = groups.map((group, gi) => {
+      if(group.length === 0) return '';
+      const sample = statusFor(group[0].deadline);
+      const rows = group.map(s => {
+        const st = statusFor(s.deadline);
+        const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
+        return `<div class="row">
+          <div class="row-bar" style="background:${prioColor}"></div>
+          <div class="row-main">
+            <div class="row-title-line">
+              <span class="row-title">${escapeHtml(s.title)}</span>
+              <span class="row-prio" style="color:${prioColor}">${s.priority}</span>
+            </div>
+            ${s.notes ? `<div class="row-notes">${escapeHtml(s.notes)}</div>` : ''}
+          </div>
+          <div class="badge" style="color:${st.color};background:${st.bg}">
+            ${s.deadline ? formatDateFR(s.deadline) : st.label}
+          </div>
+          <button class="icon-btn" onclick="editSubject('${s.id}')" title="Modifier">✎</button>
+          <button class="icon-btn" onclick="markSubjectDone('${s.id}', true)" title="Marquer terminé">✓</button>
+          <button class="icon-btn" onclick="requestDelete('subject','${s.id}')" title="Supprimer (clé requise)">🗑</button>
+        </div>`;
+      }).join('');
+      return `<div class="urgency-group">
+        <div class="urgency-group-title">
+          <span class="urgency-dot" style="background:${sample.color}"></span>
+          ${GROUP_LABELS[gi]} <span class="urgency-count">(${group.length})</span>
         </div>
-        ${s.notes ? `<div class="row-notes">${escapeHtml(s.notes)}</div>` : ''}
-      </div>
-      <div class="badge" style="color:${st.color};background:${st.bg}">
-        ${s.deadline ? `${formatDateFR(s.deadline)} · ${st.label}` : st.label}
-      </div>
-      <button class="icon-btn" onclick="removeSubject('${s.id}')" aria-label="Supprimer">🗑</button>
-    </div>`;
-  }).join('');
+        <div class="list">${rows}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const doneTitleLabel = document.getElementById('doneSectionLabel');
+  doneTitleLabel.textContent = `Sujets terminés (${done.length})`;
+  const titleEl = document.getElementById('doneSectionTitle');
+  const sectionEl = document.getElementById('doneSection');
+  titleEl.classList.toggle('collapsed', !doneSectionOpen);
+  sectionEl.classList.toggle('collapsed', !doneSectionOpen);
+
+  if(done.length === 0){
+    sectionEl.innerHTML = '<div class="empty">Aucun sujet terminé pour l\'instant.</div>';
+  }else{
+    sectionEl.innerHTML = done.map(s => {
+      const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
+      return `<div class="row done">
+        <div class="row-bar" style="background:${prioColor}"></div>
+        <div class="row-main">
+          <div class="row-title-line">
+            <span class="row-title">${escapeHtml(s.title)}</span>
+            <span class="row-prio" style="color:${prioColor}">${s.priority}</span>
+          </div>
+          ${s.notes ? `<div class="row-notes">${escapeHtml(s.notes)}</div>` : ''}
+        </div>
+        <div class="badge" style="color:${'var(--green)'};background:${'var(--green-soft)'}">Terminé</div>
+        <button class="icon-btn" onclick="editSubject('${s.id}')" title="Modifier">✎</button>
+        <button class="icon-btn" onclick="markSubjectDone('${s.id}', false)" title="Réouvrir">↺</button>
+        <button class="icon-btn" onclick="requestDelete('subject','${s.id}')" title="Supprimer (clé requise)">🗑</button>
+      </div>`;
+    }).join('');
+  }
 }
 
-function renderMeetings(){
+function renderCalendar(){
   const sp = currentSpace();
   const meetings = sp.meetings || [];
-  const sorted = [...meetings]
-    .filter(m => { const d = daysUntil(m.date); return d === null || d >= 0; })
-    .sort((a,b) => (a.date + (a.time||'')).localeCompare(b.date + (b.time||'')));
-  document.getElementById('countMeetings').textContent = sorted.length;
-  const list = document.getElementById('meetingsList');
-  if(sorted.length === 0){
-    list.innerHTML = '<div class="empty">Aucune conf enregistrée.</div>';
-    return;
-  }
-  list.innerHTML = sorted.map(m => {
-    const isToday = daysUntil(m.date) === 0;
-    return `<div class="row">
-      <div class="date-col">${formatDateFR(m.date)}${m.time ? `<small>${escapeHtml(m.time)}</small>` : ''}</div>
-      <div class="row-main">
-        <div class="row-title">${escapeHtml(m.title)}</div>
-        ${m.notes ? `<div class="row-notes">${escapeHtml(m.notes)}</div>` : ''}
-      </div>
-      ${isToday ? `<span class="today-badge">Aujourd'hui</span>` : ''}
-      <button class="icon-btn" onclick="removeMeeting('${m.id}')" aria-label="Supprimer">🗑</button>
+  const dates = weekDates();
+  const isoDates = dates.map(isoDate);
+  const todayIso = isoDate(new Date());
+
+  document.getElementById('calWeekLabel').textContent =
+    `${dates[0].toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})} – ${dates[4].toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})} ${dates[4].getFullYear()}`;
+
+  let html = `<div class="cal-head cal-head-time"></div>`;
+  dates.forEach((d,i) => {
+    const iso = isoDates[i];
+    html += `<div class="cal-head ${iso === todayIso ? 'cal-head-today' : ''}">
+      <div class="cal-head-day">${CAL_DAYS[i]}</div>
+      <div class="cal-head-date">${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</div>
     </div>`;
-  }).join('');
+  });
+
+  for(let h = CAL_START_HOUR; h < CAL_END_HOUR; h++){
+    const rowStart = 2 + (h - CAL_START_HOUR) * 2;
+    html += `<div class="cal-time-label" style="grid-row:${rowStart} / span 2; grid-column:1;">${String(h).padStart(2,'0')}:00</div>`;
+  }
+
+  for(let i = 0; i < CAL_SLOTS; i++){
+    for(let d = 0; d < 5; d++){
+      const rowStart = 2 + i;
+      const iso = isoDates[d];
+      const time = slotToTime(i);
+      html += `<div class="cal-slot" style="grid-row:${rowStart};grid-column:${2+d};" onclick="openMeetingModalAt('${iso}','${time}')"></div>`;
+    }
+  }
+
+  const inGrid = [];
+  const outOfGrid = [];
+  meetings.forEach(m => {
+    const dayIdx = isoDates.indexOf(m.date);
+    if(dayIdx === -1 || !m.time){ outOfGrid.push(m); return; }
+    const slotIdx = timeToSlot(m.time);
+    if(slotIdx < 0 || slotIdx >= CAL_SLOTS){ outOfGrid.push(m); return; }
+    inGrid.push({ m, dayIdx, slotIdx, iso: isoDates[dayIdx] });
+  });
+
+  inGrid.forEach(({m, dayIdx, slotIdx, iso}) => {
+    const duration = m.duration || 60;
+    const span = Math.max(1, Math.round(duration / CAL_SLOT_MIN));
+    const rowStart = 2 + slotIdx;
+    const endTotalMin = CAL_START_HOUR*60 + slotIdx*CAL_SLOT_MIN + duration;
+    const endH = String(Math.floor(endTotalMin/60)).padStart(2,'0');
+    const endM = String(endTotalMin%60).padStart(2,'0');
+    const isPast = iso < todayIso;
+    const bg = MEETING_PRIO_BG[m.priority] || MEETING_PRIO_BG.Moyenne;
+    html += `<div class="cal-event ${isPast ? 'cal-event-past' : ''}" style="grid-row:${rowStart} / span ${span}; grid-column:${2+dayIdx}; background:${bg};"
+      onclick="event.stopPropagation(); editMeeting('${m.id}')">
+      <b>${escapeHtml(m.title)}</b>
+      <div class="cal-event-time">${m.time}–${endH}:${endM}</div>
+    </div>`;
+  });
+
+  document.getElementById('calGrid').innerHTML = html;
+
+  const todayCount = meetings.filter(m => m.date === todayIso).length;
+  document.getElementById('countMeetingsToday').textContent = todayCount;
+
+  const outList = document.getElementById('calOutList');
+  if(outOfGrid.length === 0){
+    outList.innerHTML = '';
+    outList.style.display = 'none';
+  }else{
+    outList.style.display = 'flex';
+    outList.innerHTML = '<div class="cal-out-title">Hors grille (sans heure, ou hors lun–ven 8h–18h)</div>' +
+      outOfGrid.map(m => `<div class="row" style="cursor:pointer;" onclick="editMeeting('${m.id}')">
+        <div class="row-main">
+          <div class="row-title">${escapeHtml(m.title)}</div>
+          <div class="row-notes">${m.date ? formatDateFR(m.date) : 'Sans date'}${m.time ? ' · ' + m.time : ''}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+let editingMeetingId = null;
+let editingSubjectId = null;
+
+function editMeeting(id){
+  const sp = currentSpace();
+  const m = (sp.meetings || []).find(x => x.id === id);
+  if(!m) return;
+  editingMeetingId = id;
+  document.getElementById('meetTitle').value = m.title || '';
+  document.getElementById('meetPriority').value = m.priority || 'Moyenne';
+  document.getElementById('meetDate').value = m.date || '';
+  document.getElementById('meetTime').value = m.time || '';
+  document.getElementById('meetDuration').value = String(m.duration || 60);
+  document.getElementById('meetNotes').value = m.notes || '';
+  document.getElementById('meetingModalTitle').textContent = 'Modifier la conf';
+  document.getElementById('meetingModalSubmitBtn').textContent = 'Enregistrer';
+  document.getElementById('meetingModalDeleteBtn').style.display = 'block';
+  openModal('meetingModal');
+}
+
+function resetMeetingForm(){
+  editingMeetingId = null;
+  document.getElementById('meetTitle').value = '';
+  document.getElementById('meetPriority').value = 'Moyenne';
+  document.getElementById('meetDate').value = '';
+  document.getElementById('meetTime').value = '';
+  document.getElementById('meetDuration').value = '60';
+  document.getElementById('meetNotes').value = '';
+  document.getElementById('meetingModalTitle').textContent = 'Nouvelle conf';
+  document.getElementById('meetingModalSubmitBtn').textContent = 'Ajouter';
+  document.getElementById('meetingModalDeleteBtn').style.display = 'none';
+}
+
+function openNewMeetingModal(){
+  resetMeetingForm();
+  openModal('meetingModal');
+}
+
+function openMeetingModalAt(iso, time){
+  resetMeetingForm();
+  document.getElementById('meetDate').value = iso;
+  document.getElementById('meetTime').value = time;
+  openModal('meetingModal');
+}
+
+function editSubject(id){
+  const sp = currentSpace();
+  const s = (sp.subjects || []).find(x => x.id === id);
+  if(!s) return;
+  editingSubjectId = id;
+  document.getElementById('subjTitle').value = s.title || '';
+  document.getElementById('subjPriority').value = s.priority || 'Moyenne';
+  document.getElementById('subjDeadline').value = s.deadline || '';
+  document.getElementById('subjNotes').value = s.notes || '';
+  document.getElementById('subjectModalTitle').textContent = 'Modifier le sujet';
+  document.getElementById('subjectModalSubmitBtn').textContent = 'Enregistrer';
+  openModal('subjectModal');
+}
+
+function resetSubjectForm(){
+  editingSubjectId = null;
+  document.getElementById('subjTitle').value = '';
+  document.getElementById('subjPriority').value = 'Moyenne';
+  document.getElementById('subjDeadline').value = '';
+  document.getElementById('subjNotes').value = '';
+  document.getElementById('subjectModalTitle').textContent = 'Nouveau sujet';
+  document.getElementById('subjectModalSubmitBtn').textContent = 'Ajouter';
+}
+
+function openNewSubjectModal(){
+  resetSubjectForm();
+  openModal('subjectModal');
+}
+
+function seedExampleSubjects(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const off = n => { const d = addDays(today, n); return isoDate(d); };
+  const examples = [
+    { title: 'Relance backlog SUD-OUEST', priority: 'Haute', deadline: off(-5), notes: 'Exemple — en retard' },
+    { title: 'Compte-rendu réunion régionale', priority: 'Basse', deadline: off(-1), notes: 'Exemple — en retard' },
+    { title: 'Validation CRI photos hotline', priority: 'Haute', deadline: off(0), notes: "Exemple — aujourd'hui" },
+    { title: 'Retour qualité Lhoussaine', priority: 'Moyenne', deadline: off(2), notes: 'Exemple — 2 jours ou moins' },
+    { title: 'Préparation COMEX réitération', priority: 'Haute', deadline: off(3), notes: 'Exemple — 3 à 5 jours' },
+    { title: 'Mise à jour organigramme', priority: 'Basse', deadline: off(5), notes: 'Exemple — 3 à 5 jours' },
+    { title: 'Bilan mensuel Aurélien', priority: 'Moyenne', deadline: off(8), notes: 'Exemple — au-delà de 5 jours' },
+    { title: 'Revue dimensionnement Samedi', priority: 'Basse', deadline: off(20), notes: 'Exemple — au-delà de 5 jours' },
+    { title: 'Veille process SAV', priority: 'Moyenne', deadline: '', notes: 'Exemple — sans échéance' },
+    { title: 'Documentation ACCES_SUIVI', priority: 'Basse', deadline: '', notes: 'Exemple — sans échéance' },
+  ];
+  const sp = currentSpace();
+  sp.subjects = sp.subjects || [];
+  examples.forEach(ex => sp.subjects.push({ id: uid(), ...ex, done: false }));
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
 }
 
 function switchTab(name){
@@ -374,17 +781,19 @@ function submitSubject(){
   if(!title) return;
   const sp = currentSpace();
   sp.subjects = sp.subjects || [];
-  sp.subjects.push({
-    id: uid(),
+  const data = {
     title,
     priority: document.getElementById('subjPriority').value,
     deadline: document.getElementById('subjDeadline').value,
     notes: document.getElementById('subjNotes').value.trim(),
-  });
+  };
+  if(editingSubjectId){
+    sp.subjects = sp.subjects.map(s => s.id === editingSubjectId ? { ...s, ...data } : s);
+  }else{
+    sp.subjects.push({ id: uid(), ...data, done: false });
+  }
   spaces[currentSpaceId] = sp;
-  document.getElementById('subjTitle').value = '';
-  document.getElementById('subjDeadline').value = '';
-  document.getElementById('subjNotes').value = '';
+  resetSubjectForm();
   saveSpace(currentSpaceId);
   if(!firebaseReady) renderAll();
   closeModal('subjectModal');
@@ -396,37 +805,146 @@ function submitMeeting(){
   if(!title || !date) return;
   const sp = currentSpace();
   sp.meetings = sp.meetings || [];
-  sp.meetings.push({
-    id: uid(),
+  const data = {
     title,
+    priority: document.getElementById('meetPriority').value,
     date,
     time: document.getElementById('meetTime').value,
+    duration: parseInt(document.getElementById('meetDuration').value, 10) || 60,
     notes: document.getElementById('meetNotes').value.trim(),
-  });
+  };
+  if(editingMeetingId){
+    sp.meetings = sp.meetings.map(m => m.id === editingMeetingId ? { ...m, ...data } : m);
+  }else{
+    sp.meetings.push({ id: uid(), ...data });
+  }
   spaces[currentSpaceId] = sp;
-  document.getElementById('meetTitle').value = '';
-  document.getElementById('meetDate').value = '';
-  document.getElementById('meetTime').value = '';
-  document.getElementById('meetNotes').value = '';
+  resetMeetingForm();
   saveSpace(currentSpaceId);
   if(!firebaseReady) renderAll();
   closeModal('meetingModal');
 }
 
-function removeSubject(id){
+function markSubjectDone(id, doneValue){
+  const sp = currentSpace();
+  sp.subjects = (sp.subjects || []).map(s => s.id === id ? { ...s, done: doneValue } : s);
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+}
+
+// ---------- Import rapide (coller une liste de confs) ----------
+function openImportModal(){
+  const dates = weekDates();
+  const todayIso = isoDate(new Date());
+  const isoDates = dates.map(isoDate);
+  document.getElementById('importDate').value = isoDates.includes(todayIso) ? todayIso : isoDates[0];
+  document.getElementById('importText').value = '';
+  document.getElementById('importPreview').textContent = '';
+  openModal('importModal');
+}
+
+function parseImportLines(text){
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const re = /^(\d{1,2}):(\d{2})\s*(?:[-–]\s*(\d{1,2}):(\d{2}))?\s+(.+)$/;
+  const parsed = [];
+  const rejected = [];
+  lines.forEach(line => {
+    const match = line.match(re);
+    if(!match){ rejected.push(line); return; }
+    const [, sh, sm, eh, em, title] = match;
+    const time = `${sh.padStart(2,'0')}:${sm}`;
+    let duration = 60;
+    if(eh !== undefined){
+      duration = (parseInt(eh,10)*60 + parseInt(em,10)) - (parseInt(sh,10)*60 + parseInt(sm,10));
+      if(duration <= 0) duration = 60;
+    }
+    parsed.push({ time, duration, title: title.trim() });
+  });
+  return { parsed, rejected };
+}
+
+function previewImport(){
+  const { parsed, rejected } = parseImportLines(document.getElementById('importText').value);
+  let msg = `${parsed.length} conf(s) reconnue(s)`;
+  if(rejected.length) msg += ` · ${rejected.length} ligne(s) non reconnue(s) : "${rejected[0]}"${rejected.length>1 ? '…' : ''}`;
+  document.getElementById('importPreview').textContent = msg;
+}
+
+function submitImport(){
+  const date = document.getElementById('importDate').value;
+  if(!date){ alert('Choisis une date.'); return; }
+  const { parsed, rejected } = parseImportLines(document.getElementById('importText').value);
+  if(parsed.length === 0){ alert('Aucune ligne reconnue. Format attendu : "09:00 Titre" ou "09:00-10:30 Titre".'); return; }
+  const sp = currentSpace();
+  sp.meetings = sp.meetings || [];
+  parsed.forEach(p => {
+    sp.meetings.push({ id: uid(), title: p.title, date, time: p.time, duration: p.duration, notes: '' });
+  });
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  closeModal('importModal');
+  if(rejected.length){
+    alert(`${parsed.length} conf(s) importée(s). ${rejected.length} ligne(s) ignorée(s) car non reconnue(s) :\n\n${rejected.join('\n')}`);
+  }
+}
+
+function requestDelete(kind, id){
+  const key = prompt('Clé de suppression :');
+  if(key === null) return;
+  if(key !== DELETE_KEY){ alert('Clé incorrecte, rien n\'a été supprimé.'); return; }
+  if(kind === 'subject') deleteSubjectNow(id);
+  if(kind === 'meeting') deleteMeetingNow(id);
+}
+
+function deleteSubjectNow(id){
   const sp = currentSpace();
   sp.subjects = (sp.subjects || []).filter(s => s.id !== id);
   spaces[currentSpaceId] = sp;
   saveSpace(currentSpaceId);
   if(!firebaseReady) renderAll();
 }
-function removeMeeting(id){
+
+function deleteMeetingNow(id){
   const sp = currentSpace();
   sp.meetings = (sp.meetings || []).filter(m => m.id !== id);
   spaces[currentSpaceId] = sp;
   saveSpace(currentSpaceId);
   if(!firebaseReady) renderAll();
 }
+
+// ---------- Suppression avancée (facultative) : console développeur ----------
+window.debugListSubjects = function(){
+  const sp = currentSpace();
+  console.table((sp.subjects || []).map(s => ({ id: s.id, titre: s.title, priorite: s.priority, deadline: s.deadline, termine: !!s.done })));
+  console.log("Pour supprimer : debugDeleteSubject('id')");
+};
+window.debugDeleteSubject = function(id){
+  const sp = currentSpace();
+  const before = (sp.subjects || []).length;
+  sp.subjects = (sp.subjects || []).filter(s => s.id !== id);
+  if(sp.subjects.length === before){ console.log('Aucun sujet avec cet id.'); return; }
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  console.log('Sujet supprimé.');
+};
+window.debugListMeetings = function(){
+  const sp = currentSpace();
+  console.table((sp.meetings || []).map(m => ({ id: m.id, titre: m.title, priorite: m.priority, date: m.date, heure: m.time })));
+  console.log("Pour supprimer : debugDeleteMeeting('id')");
+};
+window.debugDeleteMeeting = function(id){
+  const sp = currentSpace();
+  const before = (sp.meetings || []).length;
+  sp.meetings = (sp.meetings || []).filter(m => m.id !== id);
+  if(sp.meetings.length === before){ console.log('Aucune conf avec cet id.'); return; }
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  console.log('Conf supprimée.');
+};
 
 initFirebase();
 </script>
