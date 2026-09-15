@@ -5,25 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Sujets & Planning — Équipe</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
   :root{
-    --bg:#F4F5F7; --surface:#FFFFFF; --border:#E1E4E9; --ink:#1B2430; --ink-soft:#5B6577;
-    --accent:#2A4D69; --accent-soft:#E7EEF3;
+    --bg:#FBFAFF; --surface:#FFFFFF; --border:#C7BFE8; --border-strong:#6C5CE7; --ink:#241F3D; --ink-soft:#726C99;
+    --accent:#6C5CE7; --accent-soft:#EDEAFB;
+    --band-bg:#6C5CE7; --band-ink:#FFFFFF; --band-ink-soft:#DCD5FA;
     --red:#C0392B; --red-soft:#FBEAE8;
     --orange:#B9700A; --orange-soft:#FBF0DD;
     --yellow:#9A7B08; --yellow-soft:#FBF6DA;
     --green:#2E7D5B; --green-soft:#E7F3ED;
+    --teal:#0F9C8F; --teal-soft:#E1F5F2;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;}
-  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-0.01em;color:var(--band-ink);margin:0;}
+  .top-band{background:var(--band-bg);padding:24px 0 20px;}
+  .top-band-inner{max-width:960px;margin:0 auto;padding:0 20px;}
+  .top-band .eyebrow{color:var(--band-ink-soft);}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px;}
   header{margin-bottom:20px;}
   .eyebrow{font-size:13px;color:var(--ink-soft);margin-bottom:4px;}
   h1{font-size:26px;font-weight:700;margin:0;}
   .note{background:var(--orange-soft);color:var(--orange);padding:10px 12px;border-radius:6px;font-size:13px;margin-bottom:16px;line-height:1.5;}
   .note code{background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;}
-  .sync-status{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;margin-bottom:16px;}
+  .sync-status{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
   .dot.off{background:var(--red);}
 
@@ -31,18 +37,37 @@
     border-radius:8px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);
     box-shadow:0 1px 4px rgba(0,0,0,0.06);z-index:10;line-height:1.5;min-width:120px;}
   .usage-badge b{color:var(--ink);}
-  .usage-bar{width:100%;height:4px;background:#EEF0F3;border-radius:2px;margin-top:4px;overflow:hidden;}
+  .usage-bar{width:100%;height:4px;background:#F1E7DA;border-radius:8px;margin-top:4px;overflow:hidden;}
   .usage-bar-fill{height:100%;background:var(--accent);}
   @media (max-width:700px){
     .usage-badge{position:static;margin:0 0 16px;width:fit-content;}
   }
 
-  .spaces{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
-  .space-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
-    font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
-  .space-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .space-add{padding:7px 12px;border-radius:999px;border:1px dashed var(--border);background:transparent;
-    font-size:13px;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
+  .backup-alert{position:fixed;top:0;left:0;right:0;z-index:100;color:#fff;padding:14px 20px;
+    display:none;align-items:center;justify-content:center;gap:14px;font-weight:700;font-size:14px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.3);animation:backup-pulse 1.1s infinite;flex-wrap:wrap;text-align:center;}
+  .backup-alert.show{display:flex;}
+  .backup-alert button{border:none;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer;
+    font-family:inherit;font-size:13px;background:#fff;color:#C0392B;}
+  .backup-alert .dismiss-btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.7);}
+  @keyframes backup-pulse{
+    0%,100%{background:#C0392B;}
+    50%{background:#FF5C3C;}
+  }
+  body.has-backup-alert{padding-top:58px;}
+  body.has-backup-alert .usage-badge{top:70px;}
+  @media (max-width:700px){
+    body.has-backup-alert{padding-top:96px;}
+  }
+
+  .spaces{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .space-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 8px 7px 12px;border-radius:999px;
+    border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;
+    color:var(--ink-soft);font-family:inherit;}
+  .space-del{background:rgba(0,0,0,0.12);border:none;border-radius:50%;width:18px;height:18px;
+    line-height:1;font-size:13px;color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .space-add{padding:7px 12px;border-radius:999px;border:1px dashed rgba(255,255,255,0.6);background:transparent;
+    font-size:13px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;}
 
   .tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);}
   .tab-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;background:transparent;border:none;
@@ -52,57 +77,62 @@
   .panel.active{display:block;}
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
   .btn-primary{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;
-    border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+    border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
   .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
-  .btn-secondary{background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);border-radius:6px;
+  .btn-secondary{background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);border-radius:8px;
     padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
-  .list{display:flex;flex-direction:column;gap:8px;}
-  .row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
-    border-radius:8px;padding:10px 12px;}
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--border);
+    border-radius:8px;padding:10px 12px;overflow:hidden;}
   .row.done{opacity:0.65;}
   .row.done .row-title{text-decoration:line-through;text-decoration-color:var(--ink-soft);}
-  .row-bar{width:4px;align-self:stretch;border-radius:2px;}
-  .row-main{flex:1;min-width:0;}
+  .row-bar{flex:0 0 100%;height:6px;margin:-10px -12px 8px -12px;border-radius:0;}
+  .row-main{flex:1 1 100%;min-width:0;}
   .row-title-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .row-title{font-weight:600;font-size:15px;}
   .row-prio{font-size:11px;font-weight:600;}
   .row-notes{font-size:13px;color:var(--ink-soft);margin-top:2px;}
-  .badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:4px 8px;border-radius:5px;white-space:nowrap;}
+  .badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;white-space:nowrap;}
   .icon-btn{background:transparent;border:none;color:var(--ink-soft);cursor:pointer;padding:4px;display:flex;}
-  .empty{border:1px dashed var(--border);border-radius:8px;padding:28px 16px;text-align:center;color:var(--ink-soft);font-size:14px;}
-  .today-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:5px;}
+  .empty{border:1px dashed var(--border);border-radius:8px;padding:28px 16px;text-align:center;color:var(--ink-soft);font-size:14px;grid-column:1/-1;}
+  .today-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:8px;}
+  .row{position:relative;}
+  .row.has-new{padding-bottom:32px;}
+  .new-badge{position:absolute;bottom:8px;right:8px;font-size:12px;font-weight:700;color:#fff;background:var(--accent);
+    padding:5px 11px;border-radius:6px;letter-spacing:0.03em;box-shadow:0 2px 8px rgba(0,0,0,0.28);}
   .modal-overlay{position:fixed;inset:0;background:rgba(20,24,30,0.4);display:none;align-items:center;
     justify-content:center;padding:16px;z-index:50;}
   .modal-overlay.open{display:flex;}
-  .modal{background:#fff;border-radius:10px;padding:20px;width:100%;max-width:420px;}
+  .modal{background:#fff;border-radius:8px;padding:20px;width:100%;max-width:420px;}
   .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
   .modal-head span{font-weight:700;font-size:16px;}
   label{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;display:block;}
-  input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+  input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;
     font-size:14px;font-family:inherit;margin-bottom:12px;}
   textarea{min-height:60px;resize:vertical;}
   .full-btn{width:100%;justify-content:center;}
 
   /* ---------- Filtre priorité ---------- */
   .prio-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-  .chip{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+  .chip{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
     font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink-soft);opacity:0.55;}
   .chip.on{opacity:1;}
   .chip.chip-haute.on{border-color:var(--red);color:var(--red);background:var(--red-soft);}
   .chip.chip-moyenne.on{border-color:var(--orange);color:var(--orange);background:var(--orange-soft);}
-  .chip.chip-basse.on{border-color:var(--ink-soft);color:var(--ink-soft);background:#EEF0F3;}
+  .chip.chip-basse.on{border-color:var(--ink-soft);color:var(--ink-soft);background:#F1E7DA;}
 
-  .urgency-group{margin-bottom:18px;}
-  .urgency-group-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
-    color:var(--ink-soft);margin-bottom:8px;}
-  .urgency-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .urgency-count{font-weight:400;color:var(--ink-soft);}
+  .urgency-group{margin-bottom:32px;}
+  .urgency-group-title{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:700;
+    color:var(--ink);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border);
+    font-family:'Space Grotesk',sans-serif;}
+  .urgency-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+  .urgency-count{font-weight:400;color:var(--ink-soft);font-size:15px;font-family:'IBM Plex Sans',sans-serif;}
 
   .section-title{font-size:13px;font-weight:700;color:var(--ink-soft);margin:22px 0 10px;
     display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
   .section-title .chev{transition:transform 0.15s;}
   .section-title.collapsed .chev{transform:rotate(-90deg);}
-  .done-section{display:flex;flex-direction:column;gap:8px;}
+  .done-section{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
   .done-section.collapsed{display:none;}
 
   /* ---------- Calendrier hebdo (style Outlook) ---------- */
@@ -114,14 +144,14 @@
     grid-template-rows:36px repeat(20,26px);min-width:560px;position:relative;}
   .cal-head{background:var(--accent-soft);padding:6px 4px;text-align:center;border-left:1px solid var(--border);}
   .cal-head-time{background:var(--surface);border-left:none;}
-  .cal-head-today{background:#DCE9F2;}
+  .cal-head-today{background:#FFE68A;}
   .cal-head-day{font-size:12px;font-weight:600;color:var(--accent);}
   .cal-head-date{font-size:11px;color:var(--ink-soft);}
   .cal-time-label{font-size:10px;color:var(--ink-soft);text-align:right;padding-right:6px;
     font-family:'IBM Plex Mono',monospace;border-top:1px solid var(--border);}
   .cal-slot{border-top:1px solid var(--border);border-left:1px solid var(--border);cursor:pointer;}
   .cal-slot:hover{background:var(--accent-soft);}
-  .cal-event{background:var(--accent);color:#fff;border-radius:4px;padding:3px 6px;font-size:11px;
+  .cal-event{background:var(--accent);color:#fff;border-radius:8px;padding:3px 6px;font-size:11px;
     overflow:hidden;cursor:pointer;line-height:1.3;z-index:2;margin:1px 2px;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
   .cal-event.cal-event-past{opacity:0.5;}
   .cal-event b{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -131,26 +161,39 @@
 </style>
 </head>
 <body>
+<div class="backup-alert" id="backupAlert">
+  ⚠️ N'oublie pas ton backup avant de partir !
+  <button onclick="exportBackup(); dismissBackupAlert(true);">⬇ Exporter maintenant</button>
+  <button class="dismiss-btn" onclick="dismissBackupAlert(false)">Plus tard</button>
+</div>
 <div class="usage-badge" id="usageBadge" style="display:none;" title="Volume estimé des données stockées, par rapport au quota gratuit Firestore (1 Go)">
   <div>Stockage : <b id="usageVolume">—</b></div>
   <div id="usagePercent">—</div>
   <div class="usage-bar"><div class="usage-bar-fill" id="usageBarFill" style="width:0%"></div></div>
 </div>
+<div class="top-band">
+  <div class="top-band-inner">
+    <header>
+      <div class="eyebrow">Coordination — suivi partagé</div>
+      <h1>Sujets &amp; planning</h1>
+    </header>
+    <div class="spaces" id="spacesBar" style="margin-top:16px;"></div>
+  </div>
+</div>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">Coordination — suivi partagé</div>
-    <h1>Sujets &amp; planning</h1>
-  </header>
-
   <div class="note" id="setupNote" style="display:none;">
     Firebase n'est pas encore configuré : remplis l'objet <code>firebaseConfig</code> en haut du fichier
     (voir les instructions fournies) pour activer le partage en temps réel entre postes.
     En attendant, l'app fonctionne en local sur ce navigateur uniquement.
   </div>
 
-  <div class="sync-status" id="syncStatus"><span class="dot off" id="syncDot"></span><span id="syncLabel">Non connecté</span></div>
-
-  <div class="spaces" id="spacesBar"></div>
+  <div class="sync-status" id="syncStatus">
+    <span class="dot off" id="syncDot"></span><span id="syncLabel">Non connecté</span>
+    <span style="flex:1;"></span>
+    <button class="btn-secondary" onclick="exportBackup()">⬇ Exporter (backup)</button>
+    <button class="btn-secondary" onclick="document.getElementById('importBackupFile').click()">⬆ Restaurer</button>
+    <input type="file" id="importBackupFile" accept="application/json" style="display:none;" onchange="handleImportBackupFile(event)" />
+  </div>
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="sujets" onclick="switchTab('sujets')">Sujets (<span id="countSubjects">0</span>)</button>
@@ -161,7 +204,6 @@
     <div class="toolbar">
       <div class="prio-filter" id="prioFilter"></div>
       <div style="display:flex;gap:8px;">
-        <button class="btn-secondary" onclick="seedExampleSubjects()">+ Exemples</button>
         <button class="btn-primary" onclick="openNewSubjectModal()">+ Nouveau sujet</button>
       </div>
     </div>
@@ -188,9 +230,9 @@
       </div>
     </div>
     <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--ink-soft);align-items:center;">
-      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#C0392B;display:inline-block;"></span>Haute</span>
-      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#B9700A;display:inline-block;"></span>Moyenne</span>
-      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:2px;background:#2A4D69;display:inline-block;"></span>Basse</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:8px;background:#C0392B;display:inline-block;"></span>Haute</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:8px;background:#B9700A;display:inline-block;"></span>Moyenne</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;border-radius:8px;background:#0F9C8F;display:inline-block;"></span>Basse</span>
     </div>
     <div class="cal-grid-wrap">
       <div class="cal-grid" id="calGrid"></div>
@@ -216,6 +258,8 @@
     <label>Notes</label>
     <textarea id="subjNotes"></textarea>
     <button class="btn-primary full-btn" id="subjectModalSubmitBtn" onclick="submitSubject()">Ajouter</button>
+    <button class="btn-secondary full-btn" id="subjectModalNewBtn" style="display:none;margin-top:8px;"
+      onclick="markSubjectAsNew()">🔵 Remettre le badge "New"</button>
   </div>
 </div>
 
@@ -285,8 +329,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-const PRIO_COLOR = { Haute: 'var(--red)', Moyenne: 'var(--orange)', Basse: 'var(--ink-soft)' };
-const MEETING_PRIO_BG = { Haute: '#C0392B', Moyenne: '#B9700A', Basse: '#2A4D69' };
+const PRIO_COLOR = { Haute: 'var(--red)', Moyenne: 'var(--orange)', Basse: 'var(--teal)' };
+const MEETING_PRIO_BG = { Haute: '#C0392B', Moyenne: '#B9700A', Basse: '#0F9C8F' };
 const PRIO_LIST = ['Haute','Moyenne','Basse'];
 const CAL_START_HOUR = 8, CAL_END_HOUR = 18, CAL_SLOT_MIN = 30;
 const CAL_SLOTS = (CAL_END_HOUR - CAL_START_HOUR) * 60 / CAL_SLOT_MIN;
@@ -392,14 +436,34 @@ function switchSpace(id){
   renderAll();
 }
 
+const SPACE_PALETTE = [
+  { bg: '#EDEAFB', ink: '#5B4BC4' }, // lavande
+  { bg: '#FFE9E0', ink: '#C25A3A' }, // pêche
+  { bg: '#E1F5F2', ink: '#0F8577' }, // menthe
+  { bg: '#FFF3D6', ink: '#9A7208' }, // miel
+  { bg: '#FDE3EE', ink: '#B33D75' }, // rose
+  { bg: '#E1EEFB', ink: '#2568A8' }, // ciel
+];
+function colorForSpace(id){
+  let hash = 0;
+  for(let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return SPACE_PALETTE[hash % SPACE_PALETTE.length];
+}
+
 function renderSpacesBar(){
   const bar = document.getElementById('spacesBar');
   const ids = Object.keys(spaces);
-  bar.innerHTML = ids.map(id => `
-    <button class="space-btn ${id === currentSpaceId ? 'active' : ''}" onclick="switchSpace('${id}')">
-      ${escapeHtml(spaces[id].name)}
-    </button>
-  `).join('') + `<button class="space-add" onclick="addSpace()">+ Personne</button>`;
+  bar.innerHTML = ids.map(id => {
+    const isActive = id === currentSpaceId;
+    const c = colorForSpace(id);
+    const style = isActive
+      ? `background:${c.ink};border-color:${c.ink};color:#fff;`
+      : `background:${c.bg};border-color:${c.bg};color:${c.ink};`;
+    return `<span class="space-btn" style="${style}">
+      <span onclick="switchSpace('${id}')" style="cursor:pointer;">${escapeHtml(spaces[id].name)}</span>
+      <button class="space-del" onclick="event.stopPropagation(); requestDelete('space','${id}')" title="Supprimer cette personne (clé requise)">×</button>
+    </span>`;
+  }).join('') + `<button class="space-add" onclick="addSpace()">+ Personne</button>`;
 }
 
 // ---------- Utilitaires dates ----------
@@ -411,11 +475,10 @@ function daysUntil(dateStr){
 }
 function statusFor(dateStr){
   const d = daysUntil(dateStr);
-  if(d === null) return { label:'Sans échéance', color:'var(--ink-soft)', bg:'#EEF0F3', order:4 };
+  if(d === null) return { label:'Sans échéance', color:'var(--ink-soft)', bg:'#F1E7DA', order:3 };
   if(d < 0) return { label:`En retard (${Math.abs(d)}j)`, color:'#000000', bg:'#E3E3E3', order:0 };
-  if(d <= 2) return { label: d===0 ? "Aujourd'hui" : `${d}j restant${d>1?'s':''}`, color:'var(--red)', bg:'var(--red-soft)', order:1 };
-  if(d <= 5) return { label:`Bientôt (${d}j)`, color:'var(--yellow)', bg:'var(--yellow-soft)', order:2 };
-  return { label:`OK (${d}j)`, color:'var(--green)', bg:'var(--green-soft)', order:3 };
+  if(d <= 3) return { label: d===0 ? "Aujourd'hui" : `${d}j restant${d>1?'s':''}`, color:'var(--red)', bg:'var(--red-soft)', order:1 };
+  return { label:`OK (${d}j)`, color:'var(--green)', bg:'var(--green-soft)', order:2 };
 }
 function formatDateFR(dateStr){
   if(!dateStr) return '';
@@ -522,8 +585,8 @@ function renderSubjects(){
   if(sortedActive.length === 0){
     list.innerHTML = '<div class="empty">Aucun sujet (avec ce filtre). Ajoute-en un ou change le filtre.</div>';
   }else{
-    const GROUP_LABELS = ['En retard', '2 jours ou moins', '3 à 5 jours', 'Au-delà de 5 jours', 'Sans échéance'];
-    const groups = [[], [], [], [], []];
+    const GROUP_LABELS = ['En retard', '3 jours ou moins', 'Au-delà de 3 jours', 'Sans échéance'];
+    const groups = [[], [], [], []];
     sortedActive.forEach(s => groups[statusFor(s.deadline).order].push(s));
 
     list.innerHTML = groups.map((group, gi) => {
@@ -532,7 +595,7 @@ function renderSubjects(){
       const rows = group.map(s => {
         const st = statusFor(s.deadline);
         const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
-        return `<div class="row">
+        return `<div class="row${s.isNew ? ' has-new' : ''}">
           <div class="row-bar" style="background:${prioColor}"></div>
           <div class="row-main">
             <div class="row-title-line">
@@ -547,6 +610,7 @@ function renderSubjects(){
           <button class="icon-btn" onclick="editSubject('${s.id}')" title="Modifier">✎</button>
           <button class="icon-btn" onclick="markSubjectDone('${s.id}', true)" title="Marquer terminé">✓</button>
           <button class="icon-btn" onclick="requestDelete('subject','${s.id}')" title="Supprimer (clé requise)">🗑</button>
+          ${s.isNew ? `<span class="new-badge">★ New</span>` : ''}
         </div>`;
       }).join('');
       return `<div class="urgency-group">
@@ -571,7 +635,7 @@ function renderSubjects(){
   }else{
     sectionEl.innerHTML = done.map(s => {
       const prioColor = PRIO_COLOR[s.priority] || PRIO_COLOR.Basse;
-      return `<div class="row done">
+      return `<div class="row done${s.isNew ? ' has-new' : ''}">
         <div class="row-bar" style="background:${prioColor}"></div>
         <div class="row-main">
           <div class="row-title-line">
@@ -584,6 +648,7 @@ function renderSubjects(){
         <button class="icon-btn" onclick="editSubject('${s.id}')" title="Modifier">✎</button>
         <button class="icon-btn" onclick="markSubjectDone('${s.id}', false)" title="Réouvrir">↺</button>
         <button class="icon-btn" onclick="requestDelete('subject','${s.id}')" title="Supprimer (clé requise)">🗑</button>
+        ${s.isNew ? `<span class="new-badge">★ New</span>` : ''}
       </div>`;
     }).join('');
   }
@@ -725,7 +790,24 @@ function editSubject(id){
   document.getElementById('subjNotes').value = s.notes || '';
   document.getElementById('subjectModalTitle').textContent = 'Modifier le sujet';
   document.getElementById('subjectModalSubmitBtn').textContent = 'Enregistrer';
+  document.getElementById('subjectModalNewBtn').style.display = 'block';
+  if(s.isNew){
+    sp.subjects = sp.subjects.map(x => x.id === id ? { ...x, isNew: false } : x);
+    spaces[currentSpaceId] = sp;
+    saveSpace(currentSpaceId);
+    if(!firebaseReady) renderAll();
+  }
   openModal('subjectModal');
+}
+
+function markSubjectAsNew(){
+  if(!editingSubjectId) return;
+  const sp = currentSpace();
+  sp.subjects = (sp.subjects || []).map(s => s.id === editingSubjectId ? { ...s, isNew: true } : s);
+  spaces[currentSpaceId] = sp;
+  saveSpace(currentSpaceId);
+  if(!firebaseReady) renderAll();
+  closeModal('subjectModal');
 }
 
 function resetSubjectForm(){
@@ -736,34 +818,12 @@ function resetSubjectForm(){
   document.getElementById('subjNotes').value = '';
   document.getElementById('subjectModalTitle').textContent = 'Nouveau sujet';
   document.getElementById('subjectModalSubmitBtn').textContent = 'Ajouter';
+  document.getElementById('subjectModalNewBtn').style.display = 'none';
 }
 
 function openNewSubjectModal(){
   resetSubjectForm();
   openModal('subjectModal');
-}
-
-function seedExampleSubjects(){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const off = n => { const d = addDays(today, n); return isoDate(d); };
-  const examples = [
-    { title: 'Relance backlog SUD-OUEST', priority: 'Haute', deadline: off(-5), notes: 'Exemple — en retard' },
-    { title: 'Compte-rendu réunion régionale', priority: 'Basse', deadline: off(-1), notes: 'Exemple — en retard' },
-    { title: 'Validation CRI photos hotline', priority: 'Haute', deadline: off(0), notes: "Exemple — aujourd'hui" },
-    { title: 'Retour qualité Lhoussaine', priority: 'Moyenne', deadline: off(2), notes: 'Exemple — 2 jours ou moins' },
-    { title: 'Préparation COMEX réitération', priority: 'Haute', deadline: off(3), notes: 'Exemple — 3 à 5 jours' },
-    { title: 'Mise à jour organigramme', priority: 'Basse', deadline: off(5), notes: 'Exemple — 3 à 5 jours' },
-    { title: 'Bilan mensuel Aurélien', priority: 'Moyenne', deadline: off(8), notes: 'Exemple — au-delà de 5 jours' },
-    { title: 'Revue dimensionnement Samedi', priority: 'Basse', deadline: off(20), notes: 'Exemple — au-delà de 5 jours' },
-    { title: 'Veille process SAV', priority: 'Moyenne', deadline: '', notes: 'Exemple — sans échéance' },
-    { title: 'Documentation ACCES_SUIVI', priority: 'Basse', deadline: '', notes: 'Exemple — sans échéance' },
-  ];
-  const sp = currentSpace();
-  sp.subjects = sp.subjects || [];
-  examples.forEach(ex => sp.subjects.push({ id: uid(), ...ex, done: false }));
-  spaces[currentSpaceId] = sp;
-  saveSpace(currentSpaceId);
-  if(!firebaseReady) renderAll();
 }
 
 function switchTab(name){
@@ -790,7 +850,7 @@ function submitSubject(){
   if(editingSubjectId){
     sp.subjects = sp.subjects.map(s => s.id === editingSubjectId ? { ...s, ...data } : s);
   }else{
-    sp.subjects.push({ id: uid(), ...data, done: false });
+    sp.subjects.push({ id: uid(), ...data, done: false, isNew: true });
   }
   spaces[currentSpaceId] = sp;
   resetSubjectForm();
@@ -890,12 +950,65 @@ function submitImport(){
   }
 }
 
+// ---------- Backup (export / restauration manuelle) ----------
+function exportBackup(){
+  const data = JSON.stringify(spaces, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `suivi-equipe-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function handleImportBackupFile(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try{ data = JSON.parse(reader.result); }catch(e){ alert('Fichier invalide, ce n\'est pas un backup JSON valide.'); return; }
+    if(typeof data !== 'object' || data === null){ alert('Format de fichier inattendu.'); return; }
+    if(!confirm('Restaurer ce backup va REMPLACER toutes les données actuelles (tous les espaces). Continuer ?')) return;
+    spaces = data;
+    currentSpaceId = Object.keys(spaces)[0] || null;
+    if(firebaseReady){
+      Object.keys(spaces).forEach(id => db.collection('spaces').doc(id).set(spaces[id]));
+    }else{
+      saveLocal();
+      renderSpacesBar();
+      renderAll();
+    }
+    alert('Backup restauré.');
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
 function requestDelete(kind, id){
   const key = prompt('Clé de suppression :');
   if(key === null) return;
   if(key !== DELETE_KEY){ alert('Clé incorrecte, rien n\'a été supprimé.'); return; }
   if(kind === 'subject') deleteSubjectNow(id);
   if(kind === 'meeting') deleteMeetingNow(id);
+  if(kind === 'space') deleteSpaceNow(id);
+}
+
+function deleteSpaceNow(id){
+  if(!confirm(`Supprimer "${spaces[id] ? spaces[id].name : id}" et tous ses sujets/confs ?`)) return;
+  delete spaces[id];
+  if(currentSpaceId === id) currentSpaceId = Object.keys(spaces)[0] || null;
+  if(firebaseReady){
+    db.collection('spaces').doc(id).delete();
+  }else{
+    saveLocal();
+  }
+  renderSpacesBar();
+  renderAll();
 }
 
 function deleteSubjectNow(id){
@@ -945,6 +1058,33 @@ window.debugDeleteMeeting = function(id){
   if(!firebaseReady) renderAll();
   console.log('Conf supprimée.');
 };
+
+// ---------- Rappel visuel de backup (15h45-16h45, heure du navigateur) ----------
+function checkBackupAlert(){
+  const now = new Date();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const inWindow = minutes >= (15*60+45) && minutes <= (16*60+45);
+  const todayStr = isoDate(now);
+  const doneToday = localStorage.getItem('backupDoneDate') === todayStr;
+  const alertEl = document.getElementById('backupAlert');
+  if(inWindow && !doneToday){
+    alertEl.classList.add('show');
+    document.body.classList.add('has-backup-alert');
+  }else{
+    alertEl.classList.remove('show');
+    document.body.classList.remove('has-backup-alert');
+  }
+}
+
+function dismissBackupAlert(done){
+  if(done) localStorage.setItem('backupDoneDate', isoDate(new Date()));
+  document.getElementById('backupAlert').classList.remove('show');
+  document.body.classList.remove('has-backup-alert');
+  if(!done) setTimeout(checkBackupAlert, 5 * 60 * 1000); // revient relancer dans 5 min si pas fait
+}
+
+setInterval(checkBackupAlert, 60 * 1000);
+checkBackupAlert();
 
 initFirebase();
 </script>
